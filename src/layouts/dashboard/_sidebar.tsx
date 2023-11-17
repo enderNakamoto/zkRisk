@@ -11,6 +11,7 @@ import { Sun } from '@/components/icons/sun';
 import { FarmIcon } from '@/components/icons/farm';
 import { OvenIcon } from '@/components/icons/oven';
 import { Plus } from '@/components/icons/plus';
+import { Car } from '@/components/icons/car';
 import { Verified } from '@/components/icons/verified';
 import { Unlocked } from '@/components/icons/unlocked';
 
@@ -38,6 +39,11 @@ const menuItems = [
   {
     name: 'Add NFT',
     icon: <Plus />,
+    href: routes.add,
+  },
+  {
+    name: 'Add Car',
+    icon: <Car />,
     href: routes.add,
   },
   {
