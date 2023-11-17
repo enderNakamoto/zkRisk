@@ -37,11 +37,6 @@ const menuItems = [
     href: routes.whitelist,
   },
   {
-    name: 'Add NFT',
-    icon: <Plus />,
-    href: routes.add,
-  },
-  {
     name: 'Add Car',
     icon: <Car />,
     href: routes.add,
