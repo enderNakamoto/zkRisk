@@ -4,6 +4,12 @@ struct TokenId:
     data1 as u128;
     data2 as u128;
 
+struct CarData:
+    odometer as u128;
+    model as u128;
+    verify as boolean;
+    insurable as boolean;
+
 struct BaseURI:
     data0 as u128;
     data1 as u128;

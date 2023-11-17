@@ -6,6 +6,13 @@ program leo_nft.aleo {
         data2: u128,
     }
 
+    struct CarData{
+        odometer: u128,
+        model: u128,
+        verify: bool, 
+        insurable: bool
+    }
+
     // base uri ascii bits. Include as many data pieces as necessary to encapsulate the uri. Padded with 0s at the end.
     struct BaseURI {
         data0: u128, // Part 1 of the base uri in bits. Bits should be the representation of the hexadecimal bytes for the ASCII text of the URL
