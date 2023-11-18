@@ -7,6 +7,7 @@ program leo_nft.aleo {
     }
 
     struct CarData{
+        vin: u128,
         odometer: u128,
         model: u128,
         verify: bool, 
@@ -59,6 +60,10 @@ program leo_nft.aleo {
     // values: hash of the token id + edition
     mapping nfts_to_mint: u128 => field;
 
+    // keys: index of the nft to mint 
+    // values: carData
+    mapping nfts_car_data: u128 => field;
+
     // keys: fields that represent claims for having minted an nft
     // values: fields that are the hash of the nft that was minted
     mapping claims_to_nfts: field => field;
@@ -107,6 +112,69 @@ program leo_nft.aleo {
         // 0b0000...0101 = 5u32.
         toggle_settings.set(0u8, 5u32);
         toggle_settings.set(1u8, 0u32); // block height when mint is allowed
+    }
+
+    transition add_and_mint_car_with_verification(public tokenId: TokenId, 
+        public edition: scalar,
+        s: signature,                      
+        CarData: CarData)  {
+        let callerAddress: address = self.caller;  
+        let verification: bool = s.verify(callerAddress, CarData);
+        // do the rest of addition of car data
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        let tokenHash: field = BHP256::hash_to_field(tokenId);
+        let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
+        return then finalize(tokenEditionHash);
+    }
+
+    finalize add_and_mint_car_with_verification(public tokenEditionHash: field){
+        // Ensure collection is initialized and not frozen.
+        let toggle_settings_status: u32 = toggle_settings.get(0u8);
+        // initialized & frozen flags = 0b0000...1001 = 9u32
+        // what the settings should be = 0b0000...0001 = 1u32
+        let is_initialized_and_not_frozen: u32 = toggle_settings_status & 9u32;
+        assert_eq(is_initialized_and_not_frozen, 1u32);
+
+        // Reduce the amount of total nfts that can be initialized
+        let remaining: u128 = general_settings.get(1u8);
+        general_settings.set(1u8, remaining - 1u128);
+
+        // Add this NFT to the mintable NFT collection
+        let mintable_num: u128 = general_settings.get(0u8);
+        nfts_to_mint.set(mintable_num, tokenEditionHash);
+        general_settings.set(0u8, mintable_num + 1u128);
+    }
+
+    // Load the data into the mapping
+    // Enables someone to mint a car NFT with provided image data & web2 data
+    transition add_and_mint_car(carData: CarData, public tokenId: TokenId, public edition: scalar) {
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        let carHash: field = BHP256::hash_to_field(carData);
+        let carEditionHash: field = BHP256::commit_to_field(carHash, edition);
+        let tokenHash: field = BHP256::hash_to_field(tokenId);
+        let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
+        return then finalize(tokenEditionHash, carEditionHash);
+    }
+
+    finalize add_and_mint_car(public tokenEditionHash: field, carEditionHash: field) {
+        // Ensure collection is initialized and not frozen.
+        let toggle_settings_status: u32 = toggle_settings.get(0u8);
+        // initialized & frozen flags = 0b0000...1001 = 9u32
+        // what the settings should be = 0b0000...0001 = 1u32
+        let is_initialized_and_not_frozen: u32 = toggle_settings_status & 9u32;
+        assert_eq(is_initialized_and_not_frozen, 1u32);
+
+        // Reduce the amount of total nfts that can be initialized
+        let remaining: u128 = general_settings.get(1u8);
+        general_settings.set(1u8, remaining - 1u128);
+
+        // Add this NFT to the mintable NFT collection
+        let mintable_num: u128 = general_settings.get(0u8);
+        nfts_to_mint.set(mintable_num, tokenEditionHash);
+        general_settings.set(0u8, mintable_num + 1u128);
+
+        // Add carData to NFT 
+        nfts_car_data.set(mintable_num, carEditionHash)
     }
     
     // Load the data into the mapping

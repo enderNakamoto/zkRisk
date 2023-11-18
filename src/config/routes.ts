@@ -3,7 +3,7 @@ const routes = {
   deploy: '/deploy',
   initialize: '/initialize',
   whitelist: '/whitelist',
-  add: '/add',
+  add: '/addCar',
   settings: '/settings',
   authorize: '/authorize',
 };

@@ -29,6 +29,11 @@ const AddCar: NextPageWithLayout = () => {
   let [transactionId, setTransactionId] = useState<string | undefined>();
   let [status, setStatus] = useState<string | undefined>();
 
+  // new car data 
+  let [carType, setCarType] = useState<string>('S');
+  let [odometer, setOdometer] = useState<string>('0');
+  let [vin, setVin] = useState<string>('');
+
   useEffect(() => {
     let intervalId: NodeJS.Timeout | undefined;
 
@@ -51,13 +56,15 @@ const AddCar: NextPageWithLayout = () => {
 
     const urlInputs = padArray(splitStringToBigInts(url), 2);
     const formattedUrlInput = `{ data1: ${urlInputs[0]}u128, data2: ${urlInputs[1]}u128 }`;
-    const inputs = [formattedUrlInput, `${editions}scalar`];
+    const formattedModel = splitStringToBigInts(carType)
+    const carInput = `{vin: ${vin}u128, odometer: ${odometer}u128, model: ${formattedModel}u128, verify: false, insurable: false}`
+    const inputs = [carInput, formattedUrlInput, `${editions}scalar`];
 
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
       WalletAdapterNetwork.Testnet,
       NFTProgramId,
-      'add_nft',
+      'add_and_mint_car',
       inputs,
       Math.floor(parseFloat(fee) * 1_000_000),
     );
@@ -122,6 +129,34 @@ const AddCar: NextPageWithLayout = () => {
                   value={fee}
                 />
               </label>
+
+              <label className="flex w-full items-center justify-between py-4">
+                Model:
+                <input
+                  className="h-11 w-10/12 appearance-none rounded-lg border-2 border-gray-200 bg-transparent py-1 text-sm tracking-tighter text-gray-900 outline-none transition-all placeholder:text-gray-600 focus:border-gray-900 ltr:pr-5 ltr:pl-10 rtl:pr-10 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
+                  onChange={(event) => setCarType(event.currentTarget.value)}
+                  value={carType}
+                />
+              </label>
+
+              <label className="flex w-full items-center justify-between py-4">
+                Odometer:
+                <input
+                  className="h-11 w-10/12 appearance-none rounded-lg border-2 border-gray-200 bg-transparent py-1 text-sm tracking-tighter text-gray-900 outline-none transition-all placeholder:text-gray-600 focus:border-gray-900 ltr:pr-5 ltr:pl-10 rtl:pr-10 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
+                  onChange={(event) => setOdometer(event.currentTarget.value)}
+                  value={odometer}
+                />
+              </label>
+
+              <label className="flex w-full items-center justify-between py-4">
+                VIN:
+                <input
+                  className="h-11 w-10/12 appearance-none rounded-lg border-2 border-gray-200 bg-transparent py-1 text-sm tracking-tighter text-gray-900 outline-none transition-all placeholder:text-gray-600 focus:border-gray-900 ltr:pr-5 ltr:pl-10 rtl:pr-10 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
+                  onChange={(event) => setVin(event.currentTarget.value)}
+                  value={vin}
+                />
+              </label>          
+
               <div className="flex items-center justify-center">
                 <Button
                   disabled={
